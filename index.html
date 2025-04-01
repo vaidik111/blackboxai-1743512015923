@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VideoCall App - Login</title>
+  <!-- Firebase SDKs must load first -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-database-compat.js"></script>
+  
+  <!-- Load production Firebase config -->
+  <script src="firebase.prod.js"></script>
+  
+  <!-- Then other dependencies -->
+  <script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  
+  <!-- Finally our main script -->
+  <script src="scripts.js"></script>
+</head>
+<body class="bg-gray-900 text-white min-h-screen flex items-center justify-center bg-[url('https://images.pexels.com/photos/3183150/pexels-photo-3183150.jpeg')] bg-cover bg-center">
+  <div class="backdrop-blur-sm bg-black/50 p-8 rounded-xl w-full max-w-md">
+    <div class="text-center mb-8">
+      <i class="fas fa-video text-blue-500 text-5xl mb-4"></i>
+      <h1 class="text-3xl font-bold">VideoCall App</h1>
+      <p class="text-gray-300 mt-2">Secure video conferencing</p>
+    </div>
+
+    <!-- Login Form -->
+    <form id="loginForm" class="mb-6">
+      <div class="mb-4">
+        <label class="block text-gray-300 mb-2">Email</label>
+        <input type="email" id="loginEmail" required 
+               class="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+      </div>
+      <div class="mb-4">
+        <label class="block text-gray-300 mb-2">Password</label>
+        <input type="password" id="loginPassword" required
+               class="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+      </div>
+      <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded transition">
+        Sign In
+      </button>
+    </form>
+
+    <!-- Signup Form -->
+    <form id="signupForm" class="mb-4">
+      <div class="mb-4">
+        <label class="block text-gray-300 mb-2">Email</label>
+        <input type="email" id="signupEmail" required
+               class="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+      </div>
+      <div class="mb-4">
+        <label class="block text-gray-300 mb-2">Password</label>
+        <input type="password" id="signupPassword" required minlength="6"
+               class="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+      </div>
+      <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded transition">
+        Create Account
+      </button>
+    </form>
+
+    <div class="text-center text-sm text-gray-400">
+      <a href="#" class="hover:text-blue-400">Forgot password?</a>
+    </div>
+  </div>
+</body>
+</html>
