@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VideoCall App - Call</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <script type="module" src="scripts.js"></script>
+</head>
+<body class="bg-gray-900 text-white">
+  <!-- Video Grid -->
+  <div id="videoContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 h-[calc(100vh-80px)]">
+    <!-- Local Video -->
+    <div class="relative bg-black rounded-lg overflow-hidden">
+      <video id="localVideo" autoplay muted class="w-full h-full object-cover"></video>
+      <div class="absolute bottom-2 left-2 bg-black/50 px-2 py-1 rounded text-sm">
+        You
+      </div>
+    </div>
+    
+    <!-- Remote Video -->
+    <div class="relative bg-black rounded-lg overflow-hidden">
+      <video id="remoteVideo" autoplay class="w-full h-full object-cover"></video>
+      <div class="absolute bottom-2 left-2 bg-black/50 px-2 py-1 rounded text-sm">
+        Participant
+      </div>
+    </div>
+  </div>
+
+  <!-- Controls -->
+  <div class="fixed bottom-0 left-0 right-0 bg-gray-800 p-4 flex justify-center space-x-6">
+    <button id="micToggle" class="bg-gray-700 hover:bg-gray-600 w-12 h-12 rounded-full flex items-center justify-center">
+      <i class="fas fa-microphone text-xl"></i>
+    </button>
+    <button id="cameraToggle" class="bg-gray-700 hover:bg-gray-600 w-12 h-12 rounded-full flex items-center justify-center">
+      <i class="fas fa-video text-xl"></i>
+    </button>
+    <button id="recordBtn" class="bg-red-600 hover:bg-red-700 w-12 h-12 rounded-full flex items-center justify-center">
+      <i class="fas fa-circle text-xl"></i>
+    </button>
+    <button id="screenShareBtn" class="bg-gray-700 hover:bg-gray-600 w-12 h-12 rounded-full flex items-center justify-center">
+      <i class="fas fa-desktop text-xl"></i>
+    </button>
+    <button id="endCallBtn" class="bg-red-600 hover:bg-red-700 px-6 h-12 rounded-full flex items-center justify-center">
+      <i class="fas fa-phone mr-2"></i> End Call
+    </button>
+  </div>
+
+  <!-- Room Info -->
+  <div class="absolute top-4 left-4 bg-black/50 px-3 py-2 rounded">
+    <p>Room: <span id="roomCode" class="font-mono">ABC123</span></p>
+  </div>
+
+  <script>
+    // WebRTC variables
+    let localStream;
+    let remoteStream;
+    let peerConnection;
+    let mediaRecorder;
+    let recordedChunks = [];
+
+    // DOM elements
+    const localVideo = document.getElementById('localVideo');
+    const remoteVideo = document.getElementById('remoteVideo');
+    const micToggle = document.getElementById('micToggle');
+    const cameraToggle = document.getElementById('cameraToggle');
+    const recordBtn = document.getElementById('recordBtn');
+    const screenShareBtn = document.getElementById('screenShareBtn');
+    const endCallBtn = document.getElementById('endCallBtn');
+    const roomCode = document.getElementById('roomCode');
+
+    // Initialize call
+    async function initCall() {
+      try {
+        // Get room code from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const roomId = urlParams.get('room');
+        roomCode.textContent = roomId || 'DEMO';
+
+        // Get user media
+        localStream = await navigator.mediaDevices.getUserMedia({
+          video: true,
+          audio: true
+        });
+        localVideo.srcObject = localStream;
+
+        // Initialize WebRTC connection
+        setupPeerConnection();
+
+        // Set up recording
+        setupRecording();
+
+      } catch (error) {
+        console.error('Error initializing call:', error);
+        alert('Failed to access camera/microphone. Please check permissions.');
+      }
+    }
+
+    function setupPeerConnection() {
+      // This would be replaced with actual WebRTC signaling logic
+      console.log('Setting up peer connection...');
+      // In a real app, you would create RTCPeerConnection here
+      // and set up signaling with Firebase
+    }
+
+    function setupRecording() {
+      mediaRecorder = new MediaRecorder(localStream);
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          recordedChunks.push(event.data);
+        }
+      };
+      mediaRecorder.onstop = () => {
+        const blob = new Blob(recordedChunks, { type: 'video/webm' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `videocall-${new Date().toISOString()}.webm`;
+        a.click();
+        recordedChunks = [];
+      };
+    }
+
+    // Event listeners
+    micToggle.addEventListener('click', () => {
+      const isMuted = localStream.getAudioTracks()[0].enabled;
+      localStream.getAudioTracks()[0].enabled = !isMuted;
+      micToggle.classList.toggle('bg-red-600', isMuted);
+      micToggle.classList.toggle('bg-gray-700', !isMuted);
+    });
+
+    cameraToggle.addEventListener('click', () => {
+      const isVideoOn = localStream.getVideoTracks()[0].enabled;
+      localStream.getVideoTracks()[0].enabled = !isVideoOn;
+      cameraToggle.classList.toggle('bg-red-600', isVideoOn);
+      cameraToggle.classList.toggle('bg-gray-700', !isVideoOn);
+    });
+
+    recordBtn.addEventListener('click', () => {
+      if (mediaRecorder.state === 'recording') {
+        mediaRecorder.stop();
+        recordBtn.classList.remove('bg-red-600');
+        recordBtn.classList.add('bg-gray-700');
+      } else {
+        mediaRecorder.start();
+        recordBtn.classList.add('bg-red-600');
+        recordBtn.classList.remove('bg-gray-700');
+      }
+    });
+
+    endCallBtn.addEventListener('click', () => {
+      if (localStream) {
+        localStream.getTracks().forEach(track => track.stop());
+      }
+      window.location.href = 'dashboard.html';
+    });
+
+    // Initialize when page loads
+    window.addEventListener('load', initCall);
+  </script>
+</body>
+</html>
